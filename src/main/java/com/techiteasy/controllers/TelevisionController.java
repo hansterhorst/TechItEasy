@@ -1,6 +1,6 @@
 package com.techiteasy.controllers;
 
-import com.techiteasy.models.Television;
+import com.techiteasy.dtos.TelevisionDTO;
 import com.techiteasy.services.TelevisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,6 @@ public class TelevisionController {
 
    private final TelevisionService televisionService;
 
-
    @Autowired
    public TelevisionController(TelevisionService televisionService) {
       this.televisionService = televisionService;
@@ -24,36 +23,39 @@ public class TelevisionController {
 
    //   get all televisions
    @GetMapping
-   public ResponseEntity<List<Television>> getAllTelevisions() {
+   public ResponseEntity<List<TelevisionDTO>> getAllTelevisions() {
+
       return new ResponseEntity<>(televisionService.getAllTelevisions(), HttpStatus.OK);
    }
 
 
    //   get television by index
    @GetMapping(value = "/{id}")
-   public ResponseEntity<Television> getTelevisionByIndex(@PathVariable(value = "id") Long id) {
-      return new ResponseEntity<>(televisionService.getTelevisionById(id), HttpStatus.OK);
+   public ResponseEntity<TelevisionDTO> getTelevisionByIndex(@PathVariable(value = "id") Long id) {
+
+      return new ResponseEntity<>(televisionService.getTelevisionById(TelevisionDTO.televisionId(id)), HttpStatus.OK);
    }
 
 
    //   add a new television
    @PostMapping
-   public ResponseEntity<Television> addTelevision(@RequestBody Television television) {
-      return new ResponseEntity<>(televisionService.createTelevision(television), HttpStatus.CREATED);
+   public ResponseEntity<TelevisionDTO> addTelevision(@RequestBody TelevisionDTO televisionDTO) {
+
+      return new ResponseEntity<>(televisionService.createTelevision(televisionDTO), HttpStatus.CREATED);
    }
 
 
    //   update television
    @PutMapping(value = "/{id}")
-   public ResponseEntity<Television> updateTelevision(@PathVariable(value = "id") Long id, @RequestBody Television television) {
+   public ResponseEntity<TelevisionDTO> updateTelevision(@PathVariable(value = "id") Long id, @RequestBody TelevisionDTO televisionDTO) {
 
-      return new ResponseEntity<>(televisionService.updateTelevision(id, television), HttpStatus.OK);
+      return new ResponseEntity<>(televisionService.updateTelevision(id, televisionDTO), HttpStatus.OK);
    }
 
 
    //   delete television by index
    @DeleteMapping(value = "/{id}")
-   public ResponseEntity<List<Television>> deleteTelevision(@PathVariable(value = "id") Long id) {
+   public ResponseEntity<List<TelevisionDTO>> deleteTelevision(@PathVariable(value = "id") Long id) {
       return new ResponseEntity<>(televisionService.deleteTelevision(id), HttpStatus.OK);
    }
 }

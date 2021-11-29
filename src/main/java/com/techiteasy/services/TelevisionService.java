@@ -1,5 +1,6 @@
 package com.techiteasy.services;
 
+import com.techiteasy.dtos.TelevisionDTO;
 import com.techiteasy.exceptions.BadRequestException;
 import com.techiteasy.exceptions.RecordNotFoundException;
 import com.techiteasy.models.Television;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,32 +27,43 @@ public class TelevisionService {
    /*
     * Get all televisions
     * */
-   public List<Television> getAllTelevisions() {
+   public List<TelevisionDTO> getAllTelevisions() {
 
       if (televisionRepository.findAll().isEmpty())
          throw new RecordNotFoundException("No televisions found!");
 
-      return televisionRepository.findAll();
+      List<TelevisionDTO> televisionDTOList = new ArrayList<>();
+
+      for (Television television : televisionRepository.findAll()) {
+
+         televisionDTOList.add(TelevisionDTO.televisionToDTO(television));
+      }
+
+      return televisionDTOList;
    }
 
    /*
     * Get television by id
     * */
-   public Television getTelevisionById(Long id) {
+   public TelevisionDTO getTelevisionById(Long id) {
 
-      return televisionRepository.findById(id).orElseThrow(() ->
+      Television television = televisionRepository.findById(id).orElseThrow(() ->
          new RecordNotFoundException(String.format("Television with id: %s not found", id)));
+
+      return TelevisionDTO.televisionToDTO(television);
    }
 
 
    /*
     * Create a new television
     * */
-   public Television createTelevision(Television television) {
+   public TelevisionDTO createTelevision(TelevisionDTO television) {
 
       try {
-         new ResponseEntity<>(televisionRepository.save(television), HttpStatus.CREATED);
-         return getTelevisionById(television.getId());
+         Television newTelevision = televisionRepository.save(TelevisionDTO.dtoToTelevision(television));
+
+         return TelevisionDTO.televisionToDTO(newTelevision);
+
       } catch (BadRequestException e) {
          throw new BadRequestException("Request body is empty!");
       }
@@ -60,24 +73,26 @@ public class TelevisionService {
    /*
     * Update television by id
     * */
-   public Television updateTelevision(Long id, Television television) {
+   public TelevisionDTO updateTelevision(Long id, TelevisionDTO televisionDTO) {
 
       Television updateTelevision = televisionRepository.findById(id).orElseThrow(() ->
          new RecordNotFoundException(String.format("Television with id: %s not found", id)));
 
-      updateTelevision.setBrand(television.getBrand());
-      updateTelevision.setName(television.getName());
-      updateTelevision.setType(television.getType());
-      updateTelevision.setPrice(television.getPrice());
+      updateTelevision.setBrand(televisionDTO.getBrand());
+      updateTelevision.setName(televisionDTO.getName());
+      updateTelevision.setType(televisionDTO.getType());
+      updateTelevision.setPrice(televisionDTO.getPrice());
 
-      return televisionRepository.save(updateTelevision);
+      televisionRepository.save(updateTelevision);
+
+      return getTelevisionById(id);
    }
 
 
    /*
     * Delete television by id
     * */
-   public List<Television> deleteTelevision(Long id) {
+   public List<TelevisionDTO> deleteTelevision(Long id) {
 
       if (!televisionRepository.existsById(id)) {
          throw new RecordNotFoundException(String.format("Television with id: %s not found", id));
